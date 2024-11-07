@@ -15,6 +15,6 @@ The asteroids and the spaceship are fully customizable via objects/asteroids.js 
 > Around this circle, `amountPoints` are evenly distributed.<br>
 > From each of these points, a line is drawn towards the center of the circle (illustrated as an orange line) with a length of `vecLength` and an inset of `vecInset`.<br>
 > Each line is then rotated within a range of ±`maxAngle` degrees (for example, a max angle of 45° would allow for a rotation between 45° clockwise and 45° counterclockwise), resulting in the final orientation of each line (shown as the green line).<br>
-> The endpoints of these rotated lines become the final vertex points (shown as red points), which are connected with line segments to form the irregular shape of the asteroid.<br>
-> For collision detection, the asteroid shape is approximated by its bounding circle.<br><br>
+> Between the endpoints of these rotated lines, the final points (shown as red points) will be generated, which are connected with line segments to form the irregular shape of the asteroid.<br>
+> For now the collision detection is just based on the circle.<br><br>
 > These different lines and points can be shown by changing this.display in js/objects/asteroid.js
