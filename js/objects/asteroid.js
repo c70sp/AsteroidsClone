@@ -1,10 +1,11 @@
 class Asteroid{
-    constructor(x, y, r, cc){
+    constructor(x, y, cc, generation = 0){
         this.x = x;
         this.y = y;
-        this.r = r;
         this.cc = cc;
-        // TODO™️: SAT for player and bullet collision
+        this.generation = generation;
+
+        this.maxChildren = 3;
 
         this.display = {
             "circle":       false,
@@ -16,17 +17,22 @@ class Asteroid{
 
         // settings
         this.amountPoints = 10;
-        this.rad = 25;
-        this.vecLength = 20;
-        this.vecInset = 10;
-        this.maxAngle = 45;
+        this.rad = 50 / (this.generation + 1);
+        this.vecLength = 20 / (this.generation + 1);
+        this.vecInset = 10 / (this.generation + 1);
+        this.maxAngle = 45 / (this.generation + 1);
 
         this.maxSpeed = 3;
         this.azimuth = Math.random() * (Math.PI * 2);
         this.speed = Math.random() * this.maxSpeed;
         this.dX = this.speed * Math.sin(this.azimuth);
         this.dY = this.speed * Math.cos(this.azimuth);
-        
+
+        if(this.generation == 0) this.color = "#90BE6D";
+        if(this.generation == 1) this.color = "#F9C74F";
+        if(this.generation == 2) this.color = "#E55858";
+        if(this.generation == 3) this.color = "#88A1E6";
+
         this.#init();
     }
 
@@ -57,15 +63,26 @@ class Asteroid{
 
         for(let i = 0; i < this.points.length; i++){
             if(this.points[i] == this.points[0]){
-                this.segments.push(new Segment(this.points[i], this.points[this.points.length - 1]));
+                this.segments.push(new Segment(this.points[i], this.points[this.points.length - 1], this.color));
                 continue;
             }
 
-            this.segments.push(new Segment(this.points[i], this.points[i - 1]));
+            this.segments.push(new Segment(this.points[i], this.points[i - 1], this.color));
         }
     }
 
     destroy(){
+        // stop generating new ones after the original and its children have been destroyed more than 3 times
+        this.generation += 1;
+        if(this.generation <= 3){ // Total of 4 (incl. origin)
+            for(let i = 0; i < this.maxChildren; i++){
+                let x = this.x + ((Math.random() * 100 - 50) / (this.generation + 1));
+                let y = this.y + ((Math.random() * 100 - 50) / (this.generation + 1));
+                this.cc.asteroids.push(new Asteroid(x, y, this.cc, this.generation));
+            }
+        }
+
+        // Delete this object
         this.cc.asteroids.splice(this.cc.asteroids.indexOf(this), 1);
     }
 
