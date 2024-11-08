@@ -26,7 +26,7 @@ class CanvasController{
     }
 
     #spawnAsteroids(){
-        for(let i = 0; i < 15; i++){
+        for(let i = 0; i < 8; i++){
             let x = Math.random() * this.canvas.width;
             let y = Math.random() * this.canvas.height;
             let dist = distance(new Point(x, y), new Point(this.spaceship.x, this.spaceship.y));
@@ -37,7 +37,7 @@ class CanvasController{
                 continue;
             }
 
-            this.asteroids.push(new Asteroid(x, y, 25, this));
+            this.asteroids.push(new Asteroid(x, y, this, 0));
         }
     }
 
@@ -195,6 +195,7 @@ class CanvasController{
     }
 
     #preDraw(){
+        this.spaceship.renderExhaust = false;
         if(this.shouldRun) this.spaceship.input(this.pressedKeys);
 
         if(this.asteroids.length == 0) this.#spawnAsteroids();
