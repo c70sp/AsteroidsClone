@@ -1,11 +1,13 @@
 class Bullet{
-    constructor(x, y, momX, momY, azimuth, spaceship){
+    constructor(x, y, momX = 0, momY = 0, azimuth, bulletList, cc, player){
         this.x = x;
         this.y = y;
         this.momX = momX;
         this.momY = momY;
         this.azimuth = azimuth;
-        this.spaceship = spaceship;
+        this.bulletList = bulletList;
+        this.cc = cc;
+        this.player = player; // true = fired by player, false = fired by alien
 
         this.baseSpeed = 16; // bullet speed when stationary
         this.minSpeed = 15; // bullet speed minimum, used for when shooting backwards
@@ -13,11 +15,11 @@ class Bullet{
     }
 
     #destroy(){
-        this.spaceship.bullets.splice(this.spaceship.bullets.indexOf(this), 1);
+        this.bulletList.splice(this.bulletList.indexOf(this), 1);
     }
 
     #checkBBox(){
-        let canvas = this.spaceship.cc.canvas;
+        let canvas = this.cc.canvas;
 
         if(this.x <= -15) this.x = canvas.width + 10;  // Left     =>  Right
         if(this.x >= canvas.width + 15) this.x = -10;  // Right    =>  Left
@@ -26,14 +28,23 @@ class Bullet{
     }
 
     #checkCollision(){
-        for(const asteroid of this.spaceship.cc.asteroids){
-            if(distance(new Point(this.x, this.y), new Point(asteroid.x, asteroid.y)) <= asteroid.rad){
-                // Higher gen. = smaller asteroid = more points
-                this.spaceship.cc.increaseScore(10 * (asteroid.generation + 1));
-
-                asteroid.destroy();
-                this.#destroy();
+        if(this.player == true){
+            for(const asteroid of this.cc.asteroids){
+                if(distance(new Point(this.x, this.y), new Point(asteroid.x, asteroid.y)) <= asteroid.rad){
+                    // Higher gen. = smaller asteroid = more points
+                    this.cc.increaseScore(10 * (asteroid.generation + 1));
+    
+                    asteroid.destroy();
+                    this.#destroy();
+                }
             }
+        }else if(this.player == false){
+            let dist = distance(new Point(this.x, this.y), new Point(this.cc.spaceship.x, this.cc.spaceship.y));
+            if(dist <= this.cc.spaceship.size / 1.5){
+                this.cc.spaceship.alive = false;
+            }
+        }else{
+            console.error("Bullet origin not specified!");
         }
     }
 
@@ -62,7 +73,7 @@ class Bullet{
     }
 
     draw(ctx){
-        this.#preDraw();
+        if(this.cc.shouldRun) this.#preDraw();
         ctx.fillStyle = "#FFF";
         ctx.shadowBlur = 15;
         ctx.shadowColor = "#FFF";
