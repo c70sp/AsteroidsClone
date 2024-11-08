@@ -27,12 +27,12 @@ class Bullet{
 
     #checkCollision(){
         for(const asteroid of this.spaceship.cc.asteroids){
-            if(distance(new Point(this.x, this.y), new Point(asteroid.x, asteroid.y)) <= asteroid.r){
-                console.log("+ points");
+            if(distance(new Point(this.x, this.y), new Point(asteroid.x, asteroid.y)) <= asteroid.rad){
+                // Higher gen. = smaller asteroid = more points
+                this.spaceship.cc.increaseScore(10 * (asteroid.generation + 1));
+
                 asteroid.destroy();
                 this.#destroy();
-
-                this.spaceship.cc.increaseScore(10);
             }
         }
     }
@@ -64,6 +64,8 @@ class Bullet{
     draw(ctx){
         this.#preDraw();
         ctx.fillStyle = "#FFF";
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = "#FFF";
 
         ctx.translate(this.x, this.y);
         ctx.rotate(this.azimuth);
@@ -74,5 +76,6 @@ class Bullet{
 
         ctx.rotate(-this.azimuth);
         ctx.translate(-this.x, -this.y);
+        ctx.shadowBlur = 0;
     }
 }
