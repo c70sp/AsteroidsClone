@@ -20,9 +20,15 @@ class Alien{
         this.alienCharArr = JSON.parse(this.alienChar);
     }
 
+    destroy(){
+        // Delete this object
+        this.cc.aliens.splice(this.cc.aliens.indexOf(this), 1);
+    }
+
     #attemptShoot(){
-        // let azimuth = Math.random() * (Math.PI * 2);
-        let azimuth = 124 * Math.PI / 180;
+        let azimuth = Math.random() * (Math.PI * 2);
+        // let azimuth = 124 * Math.PI / 180;
+        // let azimuth = 0 * Math.PI / 180;
 
         if(this.currentCooldown <= 0){
             let x = this.x + (Math.sin(azimuth) * (this.size / 1.7));
