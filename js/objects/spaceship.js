@@ -14,8 +14,9 @@ class SpaceShip{
         this.acceleration = 0.25; // acceleration added to momentum
         this.momentumX = 0; // player movement per tick on X axis
         this.momentumY = 0; // player movement per tick on Y axis
+        this.alive = true;
 
-        this.playerChar = "[0,-0.5,-0.35,0.5,0,0.2,0.35,0.5,0,-0.5]";
+        this.playerChar ="[0,-0.5,-0.35,0.5,0,0.2,0.35,0.5,0,-0.5]";
         this.playerCharArr = [];
         this.playerCharArr = JSON.parse(this.playerChar);
         
@@ -75,7 +76,7 @@ class SpaceShip{
             // Shooting logic
             if(key === " "){
                 if(this.currentCooldown <= 0){
-                    this.bullets.push(new Bullet(this.x, this.y, this.momentumX, this.momentumY, this.azimuth, this));
+                    this.bullets.push(new Bullet(this.x, this.y, this.momentumX, this.momentumY, this.azimuth, this.bullets, this.cc, true));
                     this.currentCooldown = this.bulletCooldown;
                 }
             }
@@ -94,9 +95,7 @@ class SpaceShip{
     #checkCollision(){
         for(const asteroid of this.cc.asteroids){
             if(distance(new Point(this.x, this.y), new Point(asteroid.x, asteroid.y)) <= asteroid.rad + (15 / (asteroid.generation + 1))){
-                // GAME OVER
-                this.cc.displayText(true); // true = generate and display death message
-                this.cc.shouldRun = false;
+                this.alive = false;
             }
         }
     }
@@ -105,6 +104,12 @@ class SpaceShip{
         // TP player to other screen side if out of bounding box
         this.#checkBBox();
         this.#checkCollision();
+
+        if(!this.alive){
+            // GAME OVER
+            this.cc.displayText(true); // true = generate and display death message
+            this.cc.shouldRun = false;
+        }
 
         if(this.currentCooldown > 0) this.currentCooldown--;
 
