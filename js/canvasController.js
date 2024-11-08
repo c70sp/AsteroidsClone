@@ -10,7 +10,7 @@ class CanvasController{
         this.pressedKeys = [];
         this.spaceship = undefined;
         this.asteroids = [];
-        this.numberAsteroids = 5;
+        this.numberAsteroids = 2;
 
         this.aliens = [];
 
