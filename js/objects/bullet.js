@@ -38,6 +38,14 @@ class Bullet{
                     this.#destroy();
                 }
             }
+            for(const alien of this.cc.aliens){
+                if(distance(new Point(this.x, this.y), new Point(alien.x, alien.y)) <= alien.size / 1.5){
+                    this.cc.increaseScore(2500);
+
+                    alien.destroy();
+                    this.#destroy();
+                }
+            }
         }else if(this.player == false){
             let dist = distance(new Point(this.x, this.y), new Point(this.cc.spaceship.x, this.cc.spaceship.y));
             if(dist <= this.cc.spaceship.size / 1.5){
