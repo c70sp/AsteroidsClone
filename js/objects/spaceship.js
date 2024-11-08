@@ -18,18 +18,33 @@ class SpaceShip{
         this.playerChar = "[0,-0.5,-0.35,0.5,0,0.2,0.35,0.5,0,-0.5]";
         this.playerCharArr = [];
         this.playerCharArr = JSON.parse(this.playerChar);
-        this.size = 15;
+        
+        this.playerThruster = "[-0.2,0.37,0,0.8,0.2,0.37]";
+        this.playerThrusterArr = [];
+        this.playerThrusterArr = JSON.parse(this.playerThruster);
+        this.size = 32;
 
         this.bullets = [];
         this.bulletCooldown = 10; // ticks
         this.currentCooldown = 0;
+
+        this.renderExhaust = false;
+        this.backwardAllowed = false;
     }
 
     input(keyList){
         for(const key of keyList){
             // Movement logic
             if(key === "ArrowUp" || key === "ArrowDown"){
-                const direction = key === "ArrowUp" ? 1 : -1;
+                let direction;
+                if(this.backwardAllowed){
+                    direction = key === "ArrowUp" ? 1 : -1
+                }else if(key === "ArrowUp"){
+                    direction = 1;
+                }else{
+                    return;
+                }
+
                 let tempMomentumX = this.momentumX + direction * this.acceleration * Math.sin(this.azimuth);
                 let tempMomentumY = this.momentumY - direction * this.acceleration * Math.cos(this.azimuth);
 
@@ -43,6 +58,10 @@ class SpaceShip{
                     // If within the limit, apply momentum directly
                     this.momentumX = tempMomentumX;
                     this.momentumY = tempMomentumY;
+                }
+
+                if(direction == 1){
+                    this.renderExhaust = true;
                 }
             }
 
@@ -74,7 +93,7 @@ class SpaceShip{
 
     #checkCollision(){
         for(const asteroid of this.cc.asteroids){
-            if(distance(new Point(this.x, this.y), new Point(asteroid.x, asteroid.y)) <= asteroid.r){
+            if(distance(new Point(this.x, this.y), new Point(asteroid.x, asteroid.y)) <= asteroid.rad + (15 / (asteroid.generation + 1))){
                 // GAME OVER
                 this.cc.displayText(true); // true = generate and display death message
                 this.cc.shouldRun = false;
@@ -89,6 +108,9 @@ class SpaceShip{
 
         if(this.currentCooldown > 0) this.currentCooldown--;
 
+        this.momentumX *= 0.99;
+        this.momentumY *= 0.99;
+
         if(this.cc.shouldRun) this.x += this.momentumX; // speed on X axis to X position
         if(this.cc.shouldRun) this.y += this.momentumY; // speed on Y axis to Y position
     }
@@ -102,17 +124,31 @@ class SpaceShip{
         
         // Front buffer calc
         ctx.strokeStyle = "#FFF";
-        ctx.beginPath();
+        ctx.shadowBlur = 50;
+        ctx.shadowColor = "#FFF";
 
+        // Draw spaceship
+        ctx.beginPath();
         for(let i = 0; i < this.playerCharArr.length; i += 2){
             if(i == 0) ctx.moveTo(this.playerCharArr[i] * this.size, this.playerCharArr[i+1] * this.size);
             ctx.lineTo(this.playerCharArr[i] * this.size, this.playerCharArr[i+1] * this.size);
         }
-        
         ctx.stroke();
         ctx.closePath();
 
+        // Draw thruster
+        if(this.renderExhaust && Math.random() > 0.25){
+            ctx.beginPath();
+            for(let i = 0; i < this.playerThrusterArr.length; i += 2){
+                if(i == 0) ctx.moveTo(this.playerThrusterArr[i] * this.size, this.playerThrusterArr[i+1] * this.size);
+                ctx.lineTo(this.playerThrusterArr[i] * this.size, this.playerThrusterArr[i+1] * this.size);
+            }
+            ctx.stroke();
+            ctx.closePath();
+        }
+        
         // transform to final render pos
+        ctx.shadowBlur = 0;
         ctx.rotate(-this.azimuth);
         ctx.translate(-this.x, -this.y);
 
