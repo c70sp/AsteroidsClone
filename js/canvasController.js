@@ -10,6 +10,9 @@ class CanvasController{
         this.pressedKeys = [];
         this.spaceship = undefined;
         this.asteroids = [];
+        this.numberAsteroids = 5;
+
+        this.aliens = [];
 
         this.score = 0;
 
@@ -18,6 +21,7 @@ class CanvasController{
 
     #init(){
         this.spaceship = new SpaceShip(this.canvas.width / 2, this.canvas.height / 2, this);
+        this.aliens.push(new Alien(100, 100, this));
 
         this.#spawnAsteroids();
 
@@ -26,7 +30,7 @@ class CanvasController{
     }
 
     #spawnAsteroids(){
-        for(let i = 0; i < 8; i++){
+        for(let i = 0; i < this.numberAsteroids; i++){
             let x = Math.random() * this.canvas.width;
             let y = Math.random() * this.canvas.height;
             let dist = distance(new Point(x, y), new Point(this.spaceship.x, this.spaceship.y));
@@ -57,6 +61,7 @@ class CanvasController{
         this.#stopGame();
 
         this.spaceship = undefined;
+        this.aliens = [];
         this.asteroids = [];
         this.pressedKeys = [];
         this.time = 0;
@@ -210,6 +215,10 @@ class CanvasController{
 
         for(const asteroid of this.asteroids){
             asteroid.draw(this.ctx);
+        }
+        
+        for(const alien of this.aliens){
+            alien.draw(this.ctx);
         }
     }
 }
