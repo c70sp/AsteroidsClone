@@ -5,13 +5,15 @@ class Alien{
         this.cc = cc;
 
         this.size = 32;
-        this.maxSpeed = 10;
-        this.acceleration = 0.25; // acceleration added to momentum
-        this.momentumX = 0; // player movement per tick on X axis
-        this.targetX = 0;
+        this.maxSpeed = 3;
+        this.acceleration = 0.0025; // acceleration added to momentum
+        this.dX = 0; // spaceship movement per tick on X axis
+        this.dY = 0; // spaceship movement per tick on X axis
+        this.targetX = this.cc.canvas.width / 2;
+        this.targetY = this.cc.canvas.height / 2;
 
         this.bullets = [];
-        this.bulletCooldown = 25; // ticks
+        this.bulletCooldown = Number.MAX_SAFE_INTEGER; // ticks 25
         this.currentCooldown = 0;
 
         this.alienChar =
@@ -39,8 +41,38 @@ class Alien{
         }
     }
 
-    #calcPosition(){
+    #getNewTargetPos(){
+        this.targetX = Math.random() * (this.cc.canvas.width - (this.size * 3));
+        this.targetY = Math.random() * (this.cc.canvas.height - (this.size * 3));
+    }
 
+    #calcPosition(){
+        if(distance(new Point(this.x, this.y), new Point(this.targetX, this.targetY)) <= 25){
+            this.#getNewTargetPos();
+        }
+        
+        let pidX = PID(this.cc.dt, this.x, this.targetX);
+        let pidY = PID(this.cc.dt, this.y, this.targetY);
+        
+        let tempDX = this.dX + ((pidX.p + pidX.i + pidX.d) * this.acceleration);
+        let tempDY = this.dY + ((pidY.p + pidY.i + pidY.d) * this.acceleration);
+
+        const speed = Math.sqrt(tempDX ** 2 + tempDY ** 2);
+        if (speed > this.maxSpeed) {
+            // Scale down to keep the momentum vector at max speed
+            const scale = this.maxSpeed / speed;
+            this.dX = tempDX * scale;
+            this.dY = tempDY * scale;
+        } else {
+            // If within the limit, apply momentum directly
+            this.dX = tempDX;
+            this.dY = tempDY;
+        }
+
+        // console.log(this.dX, this.dY);
+
+        this.x += this.dX;
+        this.y += this.dY;
     }
 
     #preDraw(){
