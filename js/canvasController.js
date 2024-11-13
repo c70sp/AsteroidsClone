@@ -3,14 +3,17 @@ class CanvasController{
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
 
-        this.time = 0;
+        this.time = -1;
+        this.timeLast = -2;
+        this.dT = 0;
+
         this.shouldRun = true;
         this.playerDead = false;
 
         this.pressedKeys = [];
         this.spaceship = undefined;
         this.asteroids = [];
-        this.numberAsteroids = 2;
+        this.numberAsteroids = 5;
 
         this.aliens = [];
 
@@ -191,7 +194,10 @@ class CanvasController{
     }
 
     #mainLoop(){
+        this.timeLast = this.time;
         this.time++;
+
+        this.dt = this.time - this.timeLast;
 
         this.#preDraw();
 
