@@ -48,6 +48,11 @@ class Bullet{
             }
         }else if(this.player == false){
             let dist = distance(new Point(this.x, this.y), new Point(this.cc.spaceship.x, this.cc.spaceship.y));
+            for(const asteroid of this.cc.asteroids){
+                if(distance(new Point(this.x, this.y), new Point(asteroid.x, asteroid.y)) <= asteroid.rad){
+                    this.#destroy();
+                }
+            }
             if(dist <= this.cc.spaceship.size / 1.5){
                 this.cc.spaceship.alive = false;
             }
