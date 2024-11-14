@@ -28,7 +28,7 @@ class Vector{
 
     draw(ctx){
         this.p2.x = (this.len * Math.sin(this.azimuth)) + this.p1.x + this.p1.stdOffsetX;
-        this.p2.y = (this.len * Math.cos(this.azimuth)) + this.p1.y + this.p1.stdOffsetY;
+        this.p2.y = -(this.len * Math.cos(this.azimuth)) + this.p1.y + this.p1.stdOffsetY;
 
         ctx.strokeStyle = this.color;
 
