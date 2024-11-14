@@ -16,6 +16,11 @@ class CanvasController{
         this.numberAsteroids = 5;
 
         this.aliens = [];
+        this.timeSinceAlienSpawn = 0;
+        this.minAlienSpawnTime = 30; // in seconds
+        this.maxAlienSpawnTime = 120; // in seconds
+        this.maxAlienCount = 3;
+        this.randAlienSpawnTime = getRandomInt(this.minAlienSpawnTime * 60, this.maxAlienSpawnTime * 60);
 
         this.score = 0;
 
@@ -27,6 +32,7 @@ class CanvasController{
         this.aliens.push(new Alien(100, 100, this));
 
         this.#spawnAsteroids();
+        this.#trySpawnAlien();
 
         this.#addEventListeners();
         this.#mainLoop();
@@ -46,6 +52,31 @@ class CanvasController{
 
             this.asteroids.push(new Asteroid(x, y, this, 0));
         }
+    }
+
+    #trySpawnAlien(){
+        if(this.aliens.length < this.maxAlienCount){
+            if(this.timeSinceAlienSpawn <= this.randAlienSpawnTime){
+                this.timeSinceAlienSpawn++;
+            }else{
+                console.log(this.randAlienSpawnTime);
+                this.#spawnAlien();
+            }
+        }
+    }
+
+    #spawnAlien(){
+        let x = ((Math.random() * this.canvas.width) - 50) + 25;
+        let y = ((Math.random() * this.canvas.height) - 50) + 25;
+
+        if(distance(new Point(x, y), new Point(this.spaceship.x, this.spaceship.y) <= 250)){
+            this.#spawnAlien();
+            return;
+        }
+        this.aliens.push(new Alien(x, y, this));
+
+        this.timeSinceAlienSpawn = 0;
+        this.randAlienSpawnTime = getRandomInt(this.minAlienSpawnTime * 60, this.maxAlienSpawnTime * 60);
     }
 
     #stopGame(){
@@ -208,8 +239,9 @@ class CanvasController{
     #preDraw(){
         this.spaceship.renderExhaust = false;
         if(this.shouldRun) this.spaceship.input(this.pressedKeys);
-
+        
         if(this.asteroids.length == 0) this.#spawnAsteroids();
+        this.#trySpawnAlien();
     }
 
     #draw(){
