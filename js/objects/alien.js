@@ -13,13 +13,19 @@ class Alien{
         this.targetY = this.cc.canvas.height / 2;
 
         this.bullets = [];
-        this.bulletCooldown = Number.MAX_SAFE_INTEGER; // ticks 25
+        this.bulletCooldown = 75; // ticks 25 | Number.MAX_SAFE_INTEGER
         this.currentCooldown = 0;
 
         this.alienChar =
         "[-0.9, 0, -0.4, -0.3, -0.3, -0.6, 0.3, -0.6, 0.4, -0.3, 0.9, 0, 0.4, 0.3, -0.4, 0.3, -0.9, 0, 0.9, 0, 0.4, -0.3, -0.4, -0.3]";
         this.alienCharArr = [];
         this.alienCharArr = JSON.parse(this.alienChar);
+
+        this.vec = new Vector(
+            new Point(this.x, this.y),
+            distance(new Point(this.x, this.y), new Point(this.cc.spaceship.x, this.cc.spaceship.y)),
+            0, 0, "#F00"
+        );
     }
 
     destroy(){
@@ -28,15 +34,18 @@ class Alien{
     }
 
     #attemptShoot(){
-        let azimuth = Math.random() * (Math.PI * 2);
-        // let azimuth = 124 * Math.PI / 180;
-        // let azimuth = 0 * Math.PI / 180;
-
+        let pAz = getAzimuth(new Point(this.x, this.y), new Point(this.cc.spaceship.x, this.cc.spaceship.y));
+        this.vec.azimuth = pAz;
+        
         if(this.currentCooldown <= 0){
-            let x = this.x + (Math.sin(azimuth) * (this.size / 1.7));
-            let y = this.y - (Math.cos(azimuth) * (this.size / 1.7));
+            // Semi good aiming algorithm with randomness based on distance
+            let distanceFactor = ((distance(new Point(this.x, this.y), new Point(this.cc.spaceship.x, this.cc.spaceship.y))) / 10000) / 1;
+            pAz += ((Math.random() * degToRad(25)) - degToRad(12)) - distanceFactor;
 
-            this.bullets.push(new Bullet(x, y, this.momentumX, 0, azimuth, this.bullets, this.cc, false));
+            let x = this.x + (Math.sin(pAz) * (this.size / 1.7));
+            let y = this.y + (Math.cos(pAz) * (this.size / 1.7));
+
+            this.bullets.push(new Bullet(x, y, this.momentumX, 0, pAz, this.bullets, this.cc, false));
             this.currentCooldown = this.bulletCooldown;
         }
     }
@@ -69,8 +78,6 @@ class Alien{
             this.dY = tempDY;
         }
 
-        // console.log(this.dX, this.dY);
-
         this.x += this.dX;
         this.y += this.dY;
     }
@@ -79,6 +86,10 @@ class Alien{
         if(this.currentCooldown > 0) this.currentCooldown--;
         if(this.cc.shouldRun) this.#attemptShoot();
         if(this.cc.shouldRun) this.#calcPosition();
+
+        this.vec.p1.x = this.x;
+        this.vec.p1.y = this.y;
+        this.vec.len = distance(new Point(this.x, this.y), new Point(this.cc.spaceship.x, this.cc.spaceship.y));
     }
 
     draw(ctx){
@@ -111,5 +122,7 @@ class Alien{
         for(const bullet of this.bullets){
             bullet.draw(ctx);
         }
+
+        this.vec.draw(ctx);
     }
 }
